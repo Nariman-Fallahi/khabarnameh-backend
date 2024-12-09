@@ -10,7 +10,7 @@ export class UsersService {
     this.redis = this.redisService.getOrThrow();
   }
 
-  findOne(username: string) {
-    
+  async findOne(email: string) {
+    return JSON.parse(await this.redis.get(`user:${email}`));
   }
 }

@@ -13,7 +13,6 @@ export class NewsGuard implements CanActivate {
     'politics',
     'sports',
     'social',
-    'latestnews',
   ];
 
   canActivate(

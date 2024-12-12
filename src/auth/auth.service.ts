@@ -38,6 +38,15 @@ export class AuthService {
     return existingEmail === 1;
   }
 
+  async validateToken(token: string): Promise<any> {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return decoded;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
+
   // signUp
   async signUp(CreateAuthSignUpDto: CreateAuthSignUpDto) {
     if (await this.isEmailRegistered(CreateAuthSignUpDto.email)) {

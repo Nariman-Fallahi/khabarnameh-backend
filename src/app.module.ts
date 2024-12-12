@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { NewsModule } from './news/news.module';
 import { S3Module } from './s3/s3.module';
 import { ConfigModule } from '@nestjs/config';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
     UsersModule,
     NewsModule,
     S3Module,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

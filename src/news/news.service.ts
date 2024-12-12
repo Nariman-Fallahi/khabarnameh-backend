@@ -46,7 +46,7 @@ export class NewsService {
       throw new BadRequestException('Image is required');
     }
 
-    const id = await this.redis.incr(`${category.toUpperCase}_NEWS_ID`);
+    const id = await this.redis.incr('NEWS_ID');
 
     const uploadResult = await this.s3Service.uploadFileToS3(image);
 
@@ -54,7 +54,7 @@ export class NewsService {
       id,
       ...createNewsDto,
       imageURL: uploadResult,
-      createdAt: Date.now(),
+      createdAt: new Date().toISOString(),
     };
 
     await this.redis.zadd(`news:${category}`, Date.now(), JSON.stringify(data));

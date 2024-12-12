@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateNewsDto {
   @IsNotEmpty()
@@ -10,6 +10,8 @@ export class CreateNewsDto {
   @IsNotEmpty()
   Content: string;
 
-  @IsOptional()
-  isFeatured: boolean;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  keywords: string[];
 }

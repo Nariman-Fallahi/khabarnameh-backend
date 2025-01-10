@@ -10,8 +10,8 @@ import { CommentsModule } from './comments/comments.module';
 @Module({
   imports: [
     RedisModule.forRootAsync({
-      imports: [],
-      inject: [],
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         config: {
           host: configService.get<string>('REDIS_HOST'),

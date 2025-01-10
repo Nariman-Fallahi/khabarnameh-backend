@@ -4,16 +4,21 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { NewsModule } from './news/news.module';
 import { S3Module } from './s3/s3.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
-    RedisModule.forRoot({
-      config: {
-        host: 'localhost',
-        port: 6379,
-      },
+    RedisModule.forRootAsync({
+      imports: [],
+      inject: [],
+      useFactory: async (configService: ConfigService) => ({
+        config: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
+        },
+      }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,

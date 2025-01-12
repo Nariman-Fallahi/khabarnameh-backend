@@ -14,9 +14,7 @@ import { CommentsModule } from './comments/comments.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         config: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASSWORD'),
+          url: configService.get<string>('REDIS_URL'),
         },
       }),
     }),

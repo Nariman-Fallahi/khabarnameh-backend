@@ -50,7 +50,7 @@ export class AuthService {
   // signUp
   async signUp(CreateAuthSignUpDto: CreateAuthSignUpDto) {
     if (await this.isEmailRegistered(CreateAuthSignUpDto.email)) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
     }
 
     await this.redis.sadd('emails', CreateAuthSignUpDto.email);
@@ -96,7 +96,7 @@ export class AuthService {
   // login
   async login(CreateAuthLoginDto: CreateAuthLoginDto) {
     if (!(await this.isEmailRegistered(CreateAuthLoginDto.email))) {
-      throw new UnauthorizedException('Email not found');
+      throw new HttpException('Email not found', HttpStatus.NOT_FOUND);
     }
 
     const user: User = await this.usersService.findOne(

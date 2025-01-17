@@ -16,6 +16,10 @@ import { CommentsModule } from './comments/comments.module';
         config: {
           url: configService.get<string>('REDIS_URL'),
         },
+        // config: {
+        //   host: 'localhost',
+        //   port: 6379,
+        // },
       }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),

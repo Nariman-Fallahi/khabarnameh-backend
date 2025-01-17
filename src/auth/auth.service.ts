@@ -88,8 +88,8 @@ export class AuthService {
 
     return {
       message: 'User created successfully',
-      access_token,
-      refresh_token,
+      accessToken: access_token,
+      refreshToken: refresh_token,
     };
   }
 
@@ -144,8 +144,8 @@ export class AuthService {
 
     return {
       message: 'Login successful',
-      access_token,
-      refresh_token,
+      accessToken: access_token,
+      refreshToken: refresh_token,
     };
   }
 
@@ -175,7 +175,7 @@ export class AuthService {
       );
 
       return {
-        access_token,
+        accessToken: access_token,
       };
     } catch {
       throw new UnauthorizedException('Invalid or expired refresh token');

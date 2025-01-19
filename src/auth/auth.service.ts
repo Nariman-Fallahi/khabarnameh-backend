@@ -14,6 +14,7 @@ import Redis from 'ioredis';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import { OtpService } from 'src/otp/otp.service';
 
 interface User {
   id: number;
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly otpService: OtpService,
   ) {
     this.redis = this.redisService.getOrThrow();
   }
@@ -46,51 +48,72 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
-
   // signUp
   async signUp(CreateAuthSignUpDto: CreateAuthSignUpDto) {
     if (await this.isEmailRegistered(CreateAuthSignUpDto.email)) {
       throw new HttpException('Email already exists', HttpStatus.CONFLICT);
     }
 
-    await this.redis.sadd('emails', CreateAuthSignUpDto.email);
-    const userId = await this.redis.incr('USER_ID');
+    if (CreateAuthSignUpDto.code) {
+      const isVerified = this.otpService.verifyOtp(
+        CreateAuthSignUpDto.email,
+        CreateAuthSignUpDto.code,
+      );
 
-    const hashed_password = await bcrypt.hash(CreateAuthSignUpDto.password, 10);
+      if (!isVerified) {
+        throw new HttpException(
+          'Otp code is incorrect',
+          HttpStatus.UNAUTHORIZED,
+        );
+      } else {
+        await this.redis.sadd('emails', CreateAuthSignUpDto.email);
+        const userId = await this.redis.incr('USER_ID');
 
-    const userData = {
-      id: userId,
-      ...CreateAuthSignUpDto,
-      password: hashed_password,
-    };
+        const hashed_password = await bcrypt.hash(
+          CreateAuthSignUpDto.password,
+          10,
+        );
 
-    const access_token = await this.jwtService.signAsync(
-      { email: userData.email },
-      {
-        expiresIn: '1h',
-      },
-    );
+        const userData = {
+          id: userId,
+          ...CreateAuthSignUpDto,
+          password: hashed_password,
+        };
 
-    const refresh_token = await this.jwtService.signAsync(
-      { id: userData.id },
-      {
-        expiresIn: '7d',
-      },
-    );
+        const access_token = await this.jwtService.signAsync(
+          { email: userData.email },
+          {
+            expiresIn: '1h',
+          },
+        );
 
-    await this.redis.set(`user:${userData.email}`, JSON.stringify(userData));
-    await this.redis.set(
-      `user:${userData.id}:refresh_token`,
-      refresh_token,
-      'EX',
-      7 * 24 * 60 * 60,
-    );
+        const refresh_token = await this.jwtService.signAsync(
+          { id: userData.id },
+          {
+            expiresIn: '7d',
+          },
+        );
 
-    return {
-      message: 'User created successfully',
-      accessToken: access_token,
-      refreshToken: refresh_token,
-    };
+        await this.redis.set(
+          `user:${userData.email}`,
+          JSON.stringify(userData),
+        );
+        await this.redis.set(
+          `user:${userData.id}:refresh_token`,
+          refresh_token,
+          'EX',
+          7 * 24 * 60 * 60,
+        );
+
+        return {
+          message: 'User created successfully',
+          accessToken: access_token,
+          refreshToken: refresh_token,
+        };
+      }
+    } else {
+      return this.otpService.sendOTP(CreateAuthSignUpDto.email);
+    }
   }
 
   // login

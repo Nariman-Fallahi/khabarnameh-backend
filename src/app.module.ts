@@ -6,6 +6,7 @@ import { NewsModule } from './news/news.module';
 import { S3Module } from './s3/s3.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CommentsModule } from './comments/comments.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -13,13 +14,13 @@ import { CommentsModule } from './comments/comments.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        config: {
-          url: configService.get<string>('REDIS_URL'),
-        },
         // config: {
-        //   host: 'localhost',
-        //   port: 6379,
+        //   url: configService.get<string>('REDIS_URL'),
         // },
+        config: {
+          host: 'localhost',
+          port: 6379,
+        },
       }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
@@ -28,6 +29,7 @@ import { CommentsModule } from './comments/comments.module';
     NewsModule,
     S3Module,
     CommentsModule,
+    OtpModule,
   ],
 })
 export class AppModule {}

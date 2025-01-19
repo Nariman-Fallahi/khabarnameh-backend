@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  MinLength,
+} from 'class-validator';
 
 export class CreateAuthSignUpDto {
   @IsNotEmpty()
@@ -11,6 +17,10 @@ export class CreateAuthSignUpDto {
   @IsNotEmpty()
   @MinLength(8)
   password: string;
+
+  @IsOptional()
+  @Length(5, 5)
+  code?: string;
 }
 
 export class CreateAuthLoginDto {

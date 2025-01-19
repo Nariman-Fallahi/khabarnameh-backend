@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CommentsController } from './comments.controller';
-import { AuthService } from 'src/auth/auth.service';
 import { UsersModule } from 'src/users/users.module';
-import { UsersService } from 'src/users/users.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, AuthModule],
   controllers: [CommentsController],
-  providers: [CommentsService, AuthService, UsersService],
+  providers: [CommentsService],
 })
 export class CommentsModule {}

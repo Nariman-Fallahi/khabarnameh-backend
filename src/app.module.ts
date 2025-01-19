@@ -14,13 +14,13 @@ import { OtpModule } from './otp/otp.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        // config: {
-        //   url: configService.get<string>('REDIS_URL'),
-        // },
         config: {
-          host: 'localhost',
-          port: 6379,
+          url: configService.get<string>('REDIS_URL'),
         },
+        // config: {
+        //   host: 'localhost',
+        //   port: 6379,
+        // },
       }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),

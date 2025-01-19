@@ -52,7 +52,7 @@ export class OtpService {
     const exists = await this.redis.exists(`otp:${email}`);
 
     if (exists === 0) {
-      const { data, error } = await this.resend.emails.send({
+      const { error } = await this.resend.emails.send({
         from: 'onboarding@resend.dev',
         to: email,
         subject: 'کد تایید اپلیکیشن خبرنامه',

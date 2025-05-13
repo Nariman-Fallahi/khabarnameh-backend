@@ -11,7 +11,7 @@ import {
 } from './dto/create-auth.dto';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { OtpService } from 'src/otp/otp.service';

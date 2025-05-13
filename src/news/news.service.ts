@@ -17,7 +17,7 @@ export class NewsService {
 
   async getAllNews() {
     let cursor = '0';
-    let allData = [];
+    let allNews = [];
 
     do {
       const [newCursor, keys] = await this.redis.scan(
@@ -30,11 +30,11 @@ export class NewsService {
       for (const key of keys) {
         const data = await this.redis.zrange(key, 0, -1);
         const parsedData = data.map((item) => JSON.parse(item));
-        allData = allData.concat(parsedData);
+        allNews = allNews.concat(parsedData);
       }
     } while (cursor !== '0');
 
-    return allData;
+    return allNews;
   }
 
   async create(
@@ -91,7 +91,7 @@ export class NewsService {
     }
 
     return (await this.getAllNews()).filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()),
+      item.title.includes(search),
     );
   }
 }

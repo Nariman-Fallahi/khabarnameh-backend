@@ -48,6 +48,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
+
   // signUp
   async signUp(CreateAuthSignUpDto: CreateAuthSignUpDto) {
     if (await this.isEmailRegistered(CreateAuthSignUpDto.email)) {
@@ -55,7 +56,7 @@ export class AuthService {
     }
 
     if (CreateAuthSignUpDto.code) {
-      const isVerified = this.otpService.verifyOtp(
+      const isVerified = await this.otpService.verifyOtp(
         CreateAuthSignUpDto.email,
         CreateAuthSignUpDto.code,
       );
@@ -65,52 +66,49 @@ export class AuthService {
           'Otp code is incorrect',
           HttpStatus.UNAUTHORIZED,
         );
-      } else {
-        await this.redis.sadd('emails', CreateAuthSignUpDto.email);
-        const userId = await this.redis.incr('USER_ID');
-
-        const hashed_password = await bcrypt.hash(
-          CreateAuthSignUpDto.password,
-          10,
-        );
-
-        const userData = {
-          id: userId,
-          ...CreateAuthSignUpDto,
-          password: hashed_password,
-        };
-
-        const access_token = await this.jwtService.signAsync(
-          { email: userData.email },
-          {
-            expiresIn: '1h',
-          },
-        );
-
-        const refresh_token = await this.jwtService.signAsync(
-          { id: userData.id },
-          {
-            expiresIn: '7d',
-          },
-        );
-
-        await this.redis.set(
-          `user:${userData.email}`,
-          JSON.stringify(userData),
-        );
-        await this.redis.set(
-          `user:${userData.id}:refresh_token`,
-          refresh_token,
-          'EX',
-          7 * 24 * 60 * 60,
-        );
-
-        return {
-          message: 'User created successfully',
-          accessToken: access_token,
-          refreshToken: refresh_token,
-        };
       }
+
+      await this.redis.sadd('emails', CreateAuthSignUpDto.email);
+      const userId = await this.redis.incr('USER_ID');
+
+      const hashed_password = await bcrypt.hash(
+        CreateAuthSignUpDto.password,
+        10,
+      );
+
+      const userData = {
+        id: userId,
+        ...CreateAuthSignUpDto,
+        password: hashed_password,
+      };
+
+      const access_token = await this.jwtService.signAsync(
+        { email: userData.email },
+        {
+          expiresIn: '1h',
+        },
+      );
+
+      const refresh_token = await this.jwtService.signAsync(
+        { id: userData.id },
+        {
+          expiresIn: '7d',
+        },
+      );
+
+      await this.redis.set(`user:${userData.email}`, JSON.stringify(userData));
+      await this.redis.set(
+        `user:${userData.id}:refresh_token`,
+        refresh_token,
+        'EX',
+        7 * 24 * 60 * 60,
+      );
+
+      return {
+        message: 'User created successfully',
+        accessToken: access_token,
+        refreshToken: refresh_token,
+      };
     } else {
       return this.otpService.sendOTP(CreateAuthSignUpDto.email);
     }
